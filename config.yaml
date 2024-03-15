@@ -1,0 +1,45 @@
+app: # метаданные приложения
+  name: "wda.back" # наименование приложения
+httpd:
+  port: "8000" # http порт, который будет пытаться открыть приложения и принимать на него http запросы
+  host: "" # ip адрес хоста который будет занимать приложение, можно отсавить пустым
+  service:
+    port: "8001" # http port для pprof и metrics
+  allow_origins:
+    - "*"
+proxy:
+  upstream: http://localhost:9001 # layoutconfig.api url
+  timeout_sec: 30 # timeout запросов к сервису upstream
+  health: http://localhost:9002 # см доку к layoutconfig.api, порты апи и healthcheck-ов разнесены
+countmax:
+  url: "sqlserver://root:master@study-app.watcom.local:1433?database=CM_Karpov523&connection_timeout=0&encrypt=disable" 
+  timeout_sec: 30 # timeout с которым будут работать запросы к БД
+session:
+  source: kratos # memory | kratos - каким образом инициировать менеджер сессий, в памяти или внешний сервис аутентификации
+  url: https://devauth.watcom.ru # url внешнего сервиса аутентификации
+  timeout: 10s
+permissions:
+  source: keto # memory | keto - каким образом инициировать менеджер прав, в памяти или внешний сервис хранения прав
+  url: http://elk-02:4466 # url внешнего сервиса хранения прав
+  timeout: 10s
+env: production # тип окружения в котором запускается сервис, production - логи в json формате, все отсальное обычный logrus формат, котрый лучше выводить в текстовый файл и смотреть VSCode-ом
+log:
+  level: warn # уровень логирования сервиса: debug, info, warn, error
+  file: "" # имя файла лога, если пусто или stdout - будет выводить в stdout, если указано имя фацйла, будет писать в него
+layout:
+  proxy: "off" # Параметр, отвечающий за включение проксирования. on - включить, off - выключить
+  visible:
+    online: "off" # Параметр, отвечающий за видимость в меню вкладки "Онлайн". on - отображается, off - не отображается
+    queue: "on" # Параметр, отвечающий за видимость в меню вкладки "Очередь". on - отображается, off - не отображается
+    monitoring: "on" # Параметр, отвечающий за видимость в меню вкладки "Мониторинг". on - отображается, off - не отображается
+    report: "on" # Параметр, отвечающий за видимость в меню вкладки "Отчет". on - отображается, off - не отображается
+consul:
+  url: "elk-01:8500" # адрес consul сервера
+  serviceid: "wda.back-dev" # уникальный идентификатор сервиса, соответсвует имени контейнера (имена контейнеров во всей системе не должны совпадать)!
+  address: "elk-01.watcom.local" # адрес/fqnd имя сервера по которому будет видент данный сервис, host docker машины
+  port: 8001 # порт по которому доступны метрики и проверка здоровья сервиса снаружи
+tags: "develop,countmax,wda.back,office" # теги сервиса по которым будет осущестялться поиск и разметка в мониторинге, количетсво и порядок строго определенные
+  #- develop # №1 окружение: develop, stage, production
+  #- countmax # №2 проект откуда сервис: countmax, grib, focus etc...
+  #- layoutconfig.api # №3 семейство сервисов: commonapi, dbscanner, incidentmaker, transport.webui etc...
+  #- office # №4 локация/датацентр где работает сервис

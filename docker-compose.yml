@@ -1,0 +1,20 @@
+---
+version: '2'
+services:
+  wda.back:
+    restart: always
+    image: hub.watcom.ru/wda.back
+    container_name: wda-back-dev
+    ports: ['8000:8000']
+    environment:
+      WDA_PROXY_UPSTREAM: "http://layoutconfig.api-dev:8001" # url to layoutconfig.api main port
+      WDA_PROXY_HEALTH: "http://layoutconfig.api-dev:8000" # url to layoutconfig.api service port
+      WDA_CONSUL_SERVICEID: "wda.back-dev"
+      WDA_CONSUL_URL: "elk-01.watcom.local:8500"
+      WDA_CONSUL_ADDRESS: elk-01.watcom.local
+      WDA_CONSUL_PORT: "8000"
+      WDA_TAGS: "dev,countmax,wda.back,office"
+      WDA_LOG_LEVEL: debug
+      WDA_HTTPD_PORT: 8000
+      WDA_LAYOUT_PROXY: "off"
+...
